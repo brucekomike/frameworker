@@ -1,5 +1,5 @@
 function parse_params(){
-OPTIONS_temp=$(getopt -o vhf: --long verbose,help,file: -- $1 )
+OPTIONS_temp=$(getopt -o vhcp --long verbose,help,cron,plain -- $1 )
 if [ $? -ne 0 ]; then
     echo "Failed to parse options."
     exit 1
@@ -15,11 +15,11 @@ while true; do
             HELP=1
             shift
             ;;
-        -nc | --no-colour)
+        -p | --plain)
             no_colour=true
             shift
             ;;
-        -cr | --cron)
+        -c | --cron)
             cron=true
             shift
             ;;

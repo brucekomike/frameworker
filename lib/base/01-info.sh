@@ -8,8 +8,8 @@ Usage: $0 [options] <app> [action] [others]
     Options:
        -v   --verbose       Enable verbose output
        -h   --help          Display this help message
-       -nc  --no-colour     Disables colour output
-       -cr  --cron          Run silently unless we encounter an error
+       -p   --plain         Disables colour output
+       -c   --cron          Run silently unless we encounter an error
 
     <app>:
         The name of a directory containing shell scripts.
