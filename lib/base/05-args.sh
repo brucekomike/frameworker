@@ -34,13 +34,21 @@ while true; do
 done
 
 if [ -z "$1" ]; then
-    APP="template"
+    APP="list"
 else
     APP="$1"
+    shift
 fi
-if [ -z "$2" ]; then
+
+if [ -z "$1" ]; then
     ACTION=''
 else
-    ACTION="$2"
+    ACTION="$1"
+    shift
+fi
+if [ -z "$1" ]; then
+    OTHER_ARGS=''
+else
+    OTHER_ARGS="$@"
 fi
 }

@@ -4,7 +4,7 @@
 # RETS: None
 function script_usage() {
 cat << EOF 
-Usage: $0 [options] <app> [action]
+Usage: $0 [options] <app> [action] [others]
     Options:
        -v   --verbose       Enable verbose output
        -h   --help          Display this help message
@@ -13,9 +13,12 @@ Usage: $0 [options] <app> [action]
 
     <app>:
         The name of a directory containing shell scripts.
-        Default value is: template
+        Default value is: list
+        "help" is reserved by base to show help messages
     [action] 
         The optional action passed to the application
+    [others]
+        other args will be passed to the action
 EOF
 }
 

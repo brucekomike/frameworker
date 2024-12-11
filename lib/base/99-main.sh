@@ -9,9 +9,9 @@ function main() {
     script_init $@
     # Process options
     parse_params "$@"
-    journal_init
     cron_init
     colour_init
+    journal_init
     #lock_init system
 
     # Display help message

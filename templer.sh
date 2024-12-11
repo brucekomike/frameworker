@@ -15,15 +15,17 @@ ORIGINAL_ARGS="$@"
 APP=''
 ACTION=''
 BASE_LOADED=''
+OTHER_ARGS=''
 function action_loader(){
 
     export scripts_DIR="$Working_DIR/lib/$1"
     if [ -d "$scripts_DIR" ]; then
     # excute all scripts in the ./lib dir
+        echo loading action $1:
         for script in $scripts_DIR/*.sh; do
             if [ -f "$script" ]; then
                 source "$script"
-                echo $script loaded
+                echo "    $script loaded"
             fi
         done
     else
@@ -35,6 +37,10 @@ function action_loader(){
 action_loader base
 main "${ORIGINAL_ARGS[@]}"
 
-
 action_loader $APP
-main $APP
+info_echo "Loading finished"
+echo
+
+verb_echo "other args are \"$OTHER_ARGS\""
+verb_echo "passed to action: \"$ACTION\""
+main $ACTION $OTHER_ARGS
