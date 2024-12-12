@@ -1,3 +1,3 @@
 function defualt_action(){
-    list
+    parse_action help
 }
