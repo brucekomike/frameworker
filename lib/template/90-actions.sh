@@ -8,6 +8,10 @@ function parse_action(){
             shift
             print $@
             ;;
+        shell)
+            shift
+            cli_env $@
+            ;;
         *)
             script_exit "unknown action $1." 1
             ;;

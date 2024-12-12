@@ -5,6 +5,8 @@ this is my (currently) ultimate structured bash script template, which providing
 - batch loading - include all functions into one environments
 - arg passing mechanism
 - app template
+  - action parser with options
+  - interactive shell
 - pre-defined utils
   - provided by ralish/bash-script-template (see credits)
 

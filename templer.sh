@@ -31,7 +31,7 @@ function action_loader(){
         exit 1
     fi
 }
-
+export -f action_loader
 action_loader base
 main "${ORIGINAL_ARGS[@]}"
 
