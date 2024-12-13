@@ -19,17 +19,20 @@ function action_loader(){
     export scripts_DIR="$Working_DIR/lib/$1"
     if [ -d "$scripts_DIR" ]; then
     # excute all scripts in the ./lib dir
-        echo loading action $1:
+        info_echo "loading action $1":
         for script in $scripts_DIR/*.sh; do
             if [ -f "$script" ]; then
                 source "$script"
-                echo "    $script loaded"
+                info_echo "    $script loaded"
             fi
         done
     else
-        echo "the action $1 none exists!"
+        info_echo "the action $1 none exists!"
         exit 1
     fi
+}
+info_echo(){
+  echo "$@"
 }
 export -f action_loader
 action_loader base
