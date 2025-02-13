@@ -484,4 +484,26 @@ if ! (return 0 2> /dev/null); then
     main "$@"
 fi
 
-# vim: syntax=sh cc=80 tw=79 ts=4 sw=4 sts=4 et sr
+# ask user for choice
+ask_yes_no() {
+    local prompt="$1"  # The question to ask the user
+    local response
+
+    while true; do
+        # Display the prompt and read the user's input
+        read -r -p "$prompt [Y/N]: " response
+
+        # Convert the response to lowercase for easy comparison
+        case "${response,,}" in
+            y|yes)
+                return 0  # Return 0 for "yes"
+                ;;
+            n|no)
+                return 1  # Return 1 for "no"
+                ;;
+            *)
+                echo "Invalid input. Please enter Y, Yes, N, or No."
+                ;;
+        esac
+    done
+}
