@@ -39,6 +39,7 @@ action_loader base
 main "${ORIGINAL_ARGS[@]}"
 
 action_loader $APP
+export base_CMD="$0 $APP "
 info_echo "Loading finished"
 echo
 

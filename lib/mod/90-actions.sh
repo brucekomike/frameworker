@@ -12,6 +12,10 @@ function parse_action(){
             shift
             install $@
             ;;
+        update)
+            shift
+            update $@
+            ;;
         *)
             script_exit "unknown action $1." 1
             ;;
