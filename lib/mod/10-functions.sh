@@ -79,7 +79,7 @@ function update(){
             if [[ -d "./lib/$1" ]]; then
             verb_echo "path exsits, starting update"
             cd ./lib/$1
-            git pull --depth 1
+            git pull --depth 1 --rebase
             cd ../..
             else
             script_exit "the path not exsit 
@@ -91,25 +91,22 @@ see \"$base_CMD help\"" 1;
         fi
     else 
         info_echo "path not provided, try update all"
-
+        update_all
     fi
 }
 
 function update_all() {
     verb_echo "Starting recursive update for all libraries"
-
     # Ensure CONFIG_FILE exists
     if [[ ! -f "$CONFIG_FILE" ]]; then
         script_exit "Config file not found: $CONFIG_FILE. Cannot perform update_all." 1
     fi
-
     # Read the config file line by line
     while IFS=" " read -r NAME GIT_URL; do
         # Skip empty lines or lines starting with #
         if [[ -z "$NAME" || "$NAME" == \#* ]]; then
             continue
         fi
-
         verb_echo "Processing library: $NAME"
 
         # Check if the library directory exists
@@ -118,7 +115,7 @@ function update_all() {
             verb_echo "Updating existing library: $NAME"
             (
                 cd "./lib/$NAME" || script_exit "Failed to navigate to ./lib/$NAME" 1
-                git pull --depth 1 || script_exit "Failed to update $NAME" 1
+                git pull --depth 1 --rebase || script_exit "Failed to update $NAME" 1
             )
         else
             # If the directory does not exist, clone the repository
