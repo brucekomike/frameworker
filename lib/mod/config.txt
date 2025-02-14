@@ -1,2 +1,0 @@
-deployer https://github.com/brucekomike/server-deploy
-deployer https://github.com/brucekomike/server-deploy
