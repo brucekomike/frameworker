@@ -3,8 +3,9 @@ CONFIG_FILE="$scripts_DIR/config.txt"
 
 
 function fetchurl(){
-if ![[ -f CONFIG_FILE ]]; then
+if [[ ! -f $CONFIG_FILE ]]; then
 touch $CONFIG_FILE
+echo "#framewoker config file, please keep this line in favor of grep">> $CONFIG_FILE
 fi
 local NAME_TO_FIND="$1"
 # Read the file line by line
@@ -24,10 +25,19 @@ script_exit "that app not exsit" 1
 return 127
 }
 
+#$1 for mod name
+#$2 for url
 function writeurl(){
-    grep -v "^$1" $CONFIG_FILE > temp && mv temp $CONFIG_FILE
+    if [[ ! -f $CONFIG_FILE ]]; then
+    touch $CONFIG_FILE
+    echo "#framewoker config file, please keep this line in favor of grep">> $CONFIG_FILE
+    fi
+    grep -v "^$1" $CONFIG_FILE > temp
+    mv temp $CONFIG_FILE
     echo $1 $2 >> $CONFIG_FILE
 }
+#$1 for url
+#$2 for mod name
 function install(){
     if [[ -n "$1" ]] && [[ -n "$2" ]] && is_not_reserved; then
         writeurl $2 $1

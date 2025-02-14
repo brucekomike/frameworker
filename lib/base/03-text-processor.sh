@@ -18,7 +18,7 @@ detect_section() {
 write_section() {
     local content="$1"
     local target_file="$2"
-    if detect_section; then
+    if detect_section $2; then
         # Replace the content between the markers
         sed -i "/$START_MARKER/,/$END_MARKER/c\\$START_MARKER\n$content\n$END_MARKER" "$target_file"
         verb_echo "content updated in $target_file."
