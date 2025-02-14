@@ -485,7 +485,7 @@ if ! (return 0 2> /dev/null); then
 fi
 
 # ask user for choice
-ask_yes_no() {
+function ask_yes_no() {
     local prompt="$1"  # The question to ask the user
     local response
 
@@ -506,4 +506,37 @@ ask_yes_no() {
                 ;;
         esac
     done
+}
+
+# config checker
+# this function copy from default config and exit if no validate config found
+function config_check(){
+    if [[ -f $scripts_DIR/config.sh ]]; then
+        verb_echo "config check passed"
+        return 0
+        else
+        verb_echo "config check failed, try duplicating from default one"
+        if [[ -f $scripts_DIR/config.example ]]; then
+        cp $scripts_DIR/config.example $scripts_DIR/config.sh
+        script_exit "seems this is your first time to use this script,\n please edit the config file located at:\n$scripts_DIR/config.sh" 0
+        else
+        script_exit "default config not exist" 1
+        fi
+    fi
+}
+
+function load_folder(){
+    if [[ -d $1 ]];then
+    # excute all scripts in the ./lib dir
+        info_echo "loading subfolder $1":
+        for script in $1/*.sh; do
+            if [ -f "$script" ]; then
+                source "$script"
+                info_echo "    $script loaded"
+            fi
+        done
+    else
+        info_echo "the subfolder $1 none exists!"
+        exit 1
+    fi
 }
