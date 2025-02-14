@@ -1,6 +1,10 @@
 # bash-preject-template
 this is my (currently) ultimate structured bash script template, which providing tons of convenience.
 
+## installation
+```
+git clone --depth 1 https://github.com/brucekomike/bash-project-template frameworker
+```
 ## features
 - batch loading - include all functions into one environments
 - arg passing mechanism
