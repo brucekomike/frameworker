@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# gnu-bash fix in macos, please install gnu-getopt first
+if [[ $(uname) == "Darwin" ]]; then
+    if [[ ! -f "/opt/homebrew/opt/gnu-getopt/bin/getopt" ]]; then
+    echo "Please install gnu-getopt first"
+    echo "\$ brew install gnu-getopt"
+    exit 1
+    fi
+    export PATH="/opt/homebrew/opt/gnu-getopt/bin:$PATH"
+fi
 #  _       _ _   
 # (_)_ __ (_) |_ 
 # | | '_ \| | __|
