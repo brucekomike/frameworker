@@ -12,6 +12,10 @@ function parse_action(){
             shift
             cli_env $@
             ;;
+        sketch)
+            shift
+            sketch $@
+            ;;
         *)
             script_exit "unknown action $1." 1
             ;;

@@ -321,7 +321,7 @@ function journal_init() {
     verbose_print() { :; }
     fi
     declare -f verbose_print > /dev/null
-    verbose_print "you have verbose mode enabled"
+    verbose_print "you have verbose mode enabled" "${fg_cyan-}"
 }
 
 # DESC: Combines two path variables and removes any duplicates

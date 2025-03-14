@@ -1,5 +1,5 @@
 function parse_params(){
-OPTIONS_temp=$(getopt -o vhcp --long verbose,help,cron,plain -- $1 )
+OPTIONS_temp=$(getopt -o vhcpd --long verbose,help,cron,plain,debug -- $1 )
 if [ $? -ne 0 ]; then
     echo "Failed to parse options."
     exit 1
@@ -21,6 +21,10 @@ while true; do
             ;;
         -c | --cron)
             cron=true
+            shift
+            ;;
+        -d | --debug)
+            set -o xtrace
             shift
             ;;
         --)

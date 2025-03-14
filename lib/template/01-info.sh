@@ -9,6 +9,7 @@ Action list:
     help             - show this help
     print [contents] - print the string after the action
     shell            - enther a shell with functions loaded
+    sketch <name>    - create a new module from this template
 Default:
     help
 EOF

@@ -3,4 +3,8 @@
 !base
 !list
 !mod
-!templtae
+!template
+!base/*
+!list/*
+!mod/*
+!template/*

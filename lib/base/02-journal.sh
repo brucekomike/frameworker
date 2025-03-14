@@ -9,3 +9,7 @@ function verb_echo(){
 function red_echo(){
     pretty_print "$@" "${bg_red-}"
 }
+
+function error_echo(){
+    pretty_print "$@" "${bg_red-}"
+}

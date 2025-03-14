@@ -18,6 +18,7 @@ fi
 # import all functions and init the env for ubuntu
 
 export Working_DIR=$(pwd)
+export LIB_DIR="$Working_DIR/lib"
 ORIGINAL_ARGS="$@"
 APP=''
 ACTION=''

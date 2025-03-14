@@ -3,6 +3,8 @@ function print(){
 }
 function cli_env(){
     bash --rcfile <(cat <<EOF
+    source /etc/profile
+    source $HOME/.bashrc
     # Export the Working_DIR variable
     export Working_DIR="$Working_DIR"
 
@@ -13,7 +15,6 @@ function cli_env(){
     action_loader base
     main "${ORIGINAL_ARGS[@]}"
     action_loader "$APP"
-
 EOF
 )
 }

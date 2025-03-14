@@ -1,4 +1,4 @@
-export MODULE_NAME="template"
+export MODULE_NAME="mod"
 export DESCRIPTION="this is the $MODULE_NAME app, \
 manager for apps"
 export DESCRIPTION_verbose="\
