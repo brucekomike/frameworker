@@ -52,6 +52,6 @@ export base_CMD="$0 $APP "
 info_echo "Loading finished"
 echo
 
-verb_echo "other args are \"$OTHER_ARGS\""
-verb_echo "passed to action: \"$ACTION\""
+verb_echo "command passed to action: \"$ACTION\""
+verb_echo "action args are \"$OTHER_ARGS\""
 main $ACTION $OTHER_ARGS

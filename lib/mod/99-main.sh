@@ -1,7 +1,7 @@
 main(){
-  info_echo "this is the mod app, manager for apps"
-  verb_echo "you see this line since you have verbose mode enabled"
-  
+  info_echo "$DESCRIPTION"
+  verb_echo "$DESCRIPTION_verbose"
+   
   if [ -z $1 ]; then
     defualt_action
   else
