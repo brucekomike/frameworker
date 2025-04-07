@@ -8,14 +8,19 @@ function parse_action(){
       shift
       print $@
       ;;
-    install)
+    shell)
       shift
-      install $@
+      cli_env $@
       ;;
-    update)
+    up)
       shift
-      update $@
+      frameworker_env $@
       ;;
+    rm)
+      shift
+      frameworker_de_env $@
+      ;;
+
     *)
       script_exit "unknown action $1." 1
       ;;

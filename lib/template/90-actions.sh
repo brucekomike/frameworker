@@ -1,23 +1,23 @@
 # $1: the action
 function parse_action(){
-    case "$1" in
-        help)
-            script_usage
-            ;;
-        print)
-            shift
-            print $@
-            ;;
-        shell)
-            shift
-            cli_env $@
-            ;;
-        sketch)
-            shift
-            sketch $@
-            ;;
-        *)
-            script_exit "unknown action $1." 1
-            ;;
-    esac
+  case "$1" in
+    help)
+      script_usage
+      ;;
+    print)
+      shift
+      print $@
+      ;;
+    shell)
+      shift
+      cli_env $@
+      ;;
+    sketch)
+      shift
+      sketch $@
+      ;;
+    *)
+      script_exit "unknown action $1." 1
+      ;;
+  esac
 }

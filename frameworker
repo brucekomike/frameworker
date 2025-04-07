@@ -19,27 +19,33 @@ fi
 
 export Working_DIR=$(pwd)
 export LIB_DIR="$Working_DIR/lib"
+# use specific lib dir if user installation config detected
+if [ -f "$HOME/.config/frameworker" ]; then
+  export LIB_DIR="$(head -n 1 "$HOME/.config/frameworker")/lib"
+else
+  :
+fi
+
 ORIGINAL_ARGS="$@"
 APP=''
 ACTION=''
 BASE_LOADED=''
 OTHER_ARGS=''
 function action_loader(){
-
-    export scripts_DIR="$Working_DIR/lib/$1"
-    if [ -d "$scripts_DIR" ]; then
-    # excute all scripts in the ./lib dir
-        info_echo "loading action $1":
-        for script in $scripts_DIR/*.sh; do
-            if [ -f "$script" ]; then
-                source "$script"
-                info_echo "    $script loaded"
-            fi
-        done
-    else
-        info_echo "the action $1 none exists!"
-        exit 1
-    fi
+  export scripts_DIR="$LIB_DIR/$1"
+  if [ -d "$scripts_DIR" ]; then
+    # excute all scripts in the lib dir
+    info_echo "loading action $1":
+    for script in $scripts_DIR/*.sh; do
+      if [ -f "$script" ]; then
+        source "$script"
+        info_echo "    $script loaded"
+      fi
+    done
+  else
+    info_echo "the action $1 none exists!"
+    exit 1
+  fi
 }
 info_echo(){
   echo "$@"

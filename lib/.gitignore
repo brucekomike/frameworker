@@ -3,8 +3,10 @@
 !base
 !list
 !mod
+!env
 !template
 !base/*
 !list/*
 !mod/*
 !template/*
+!env/*

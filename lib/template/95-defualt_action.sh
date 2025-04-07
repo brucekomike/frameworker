@@ -1,3 +1,3 @@
 function defualt_action(){
-    parse_action help
+  arse_action help
 }

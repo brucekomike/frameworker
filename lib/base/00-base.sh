@@ -2,16 +2,16 @@
 
 # Enable xtrace if the DEBUG environment variable is set
 if [[ ${DEBUG-} =~ ^1|yes|true$ ]]; then
-    set -o xtrace       # Trace the execution of the script (debug)
+  set -o xtrace       # Trace the execution of the script (debug)
 fi
 
 # Only enable these shell behaviours if we're not being sourced
 # Approach via: https://stackoverflow.com/a/28776166/8787985
 if ! (return 0 2> /dev/null); then
-    # A better class of script...
-    set -o errexit      # Exit on most errors (see the manual)
-    set -o nounset      # Disallow expansion of unset variables
-    set -o pipefail     # Use last non-zero exit code in a pipeline
+  # A better class of script...
+  set -o errexit      # Exit on most errors (see the manual)
+  set -o nounset      # Disallow expansion of unset variables
+  set -o pipefail     # Use last non-zero exit code in a pipeline
 fi
 
 # Enable errtrace or the error trap handler will not work as expected
@@ -22,47 +22,47 @@ set -o errtrace         # Ensure the error trap handler is inherited
 # OUTS: None
 # RETS: None
 function script_trap_err() {
-    local exit_code=1
+  local exit_code=1
 
-    # Disable the error trap handler to prevent potential recursion
-    trap - ERR
+  # Disable the error trap handler to prevent potential recursion
+  trap - ERR
 
-    # Consider any further errors non-fatal to ensure we run to completion
-    set +o errexit
-    set +o pipefail
+  # Consider any further errors non-fatal to ensure we run to completion
+  set +o errexit
+  set +o pipefail
 
-    # Validate any provided exit code
-    if [[ ${1-} =~ ^[0-9]+$ ]]; then
-        exit_code="$1"
+  # Validate any provided exit code
+  if [[ ${1-} =~ ^[0-9]+$ ]]; then
+    exit_code="$1"
+  fi
+
+  # Output debug data if in Cron mode
+  if [[ -n ${cron-} ]]; then
+    # Restore original file output descriptors
+    if [[ -n ${script_output-} ]]; then
+      exec 1>&3 2>&4
     fi
 
-    # Output debug data if in Cron mode
-    if [[ -n ${cron-} ]]; then
-        # Restore original file output descriptors
-        if [[ -n ${script_output-} ]]; then
-            exec 1>&3 2>&4
-        fi
+    # Print basic debugging information
+    printf '%b\n' "$ta_none"
+    printf '***** Abnormal termination of script *****\n'
+    printf 'Script Path:            %s\n' "$script_path"
+    printf 'Script Parameters:      %s\n' "$script_params"
+    printf 'Script Exit Code:       %s\n' "$exit_code"
 
-        # Print basic debugging information
-        printf '%b\n' "$ta_none"
-        printf '***** Abnormal termination of script *****\n'
-        printf 'Script Path:            %s\n' "$script_path"
-        printf 'Script Parameters:      %s\n' "$script_params"
-        printf 'Script Exit Code:       %s\n' "$exit_code"
-
-        # Print the script log if we have it. It's possible we may not if we
-        # failed before we even called cron_init(). This can happen if bad
-        # parameters were passed to the script so we bailed out very early.
-        if [[ -n ${script_output-} ]]; then
-            # shellcheck disable=SC2312
-            printf 'Script Output:\n\n%s' "$(cat "$script_output")"
-        else
-            printf 'Script Output:          None (failed before log init)\n'
-        fi
+    # Print the script log if we have it. It's possible we may not if we
+    # failed before we even called cron_init(). This can happen if bad
+    # parameters were passed to the script so we bailed out very early.
+    if [[ -n ${script_output-} ]]; then
+      # shellcheck disable=SC2312
+      printf 'Script Output:\n\n%s' "$(cat "$script_output")"
+    else
+      printf 'Script Output:          None (failed before log init)\n'
     fi
+  fi
 
-    # Exit with failure status
-    exit "$exit_code"
+  # Exit with failure status
+  exit "$exit_code"
 }
 
 # DESC: Handler for exiting the script
@@ -70,20 +70,20 @@ function script_trap_err() {
 # OUTS: None
 # RETS: None
 function script_trap_exit() {
-    cd "$orig_cwd"
+  cd "$orig_cwd"
 
-    # Remove Cron mode script log
-    if [[ -n ${cron-} && -f ${script_output-} ]]; then
-        rm "$script_output"
-    fi
+  # Remove Cron mode script log
+  if [[ -n ${cron-} && -f ${script_output-} ]]; then
+    rm "$script_output"
+  fi
 
-    # Remove script execution lock
-    if [[ -d ${script_lock-} ]]; then
-        rmdir "$script_lock"
-    fi
+  # Remove script execution lock
+  if [[ -d ${script_lock-} ]]; then
+    rmdir "$script_lock"
+  fi
 
-    # Restore terminal colours
-    printf '%b' "$ta_none"
+  # Restore terminal colours
+  printf '%b' "$ta_none"
 }
 
 # DESC: Exit script with the given message
@@ -96,22 +96,22 @@ function script_trap_exit() {
 #       1: Abnormal exit due to external error
 #       2: Abnormal exit due to script error
 function script_exit() {
-    if [[ $# -eq 1 ]]; then
-        printf '%s\n' "$1"
-        exit 0
-    fi
+  if [[ $# -eq 1 ]]; then
+    printf '%s\n' "$1"
+    exit 0
+  fi
 
-    if [[ ${2-} =~ ^[0-9]+$ ]]; then
-        printf '%b\n' "$1"
-        # If we've been provided a non-zero exit code run the error trap
-        if [[ $2 -ne 0 ]]; then
-            script_trap_err "$2"
-        else
-            exit 0
-        fi
+  if [[ ${2-} =~ ^[0-9]+$ ]]; then
+    printf '%b\n' "$1"
+    # If we've been provided a non-zero exit code run the error trap
+    if [[ $2 -ne 0 ]]; then
+      script_trap_err "$2"
+    else
+      exit 0
     fi
+  fi
 
-    script_exit 'Missing required argument to script_exit()!' 2
+  script_exit 'Missing required argument to script_exit()!' 2
 }
 
 # DESC: Generic script initialisation
@@ -129,17 +129,17 @@ function script_exit() {
 #       caveat applies to both the $script_dir and $script_name variables.
 # shellcheck disable=SC2034
 function script_init() {
-    # Useful variables
-    readonly orig_cwd="$PWD"
-    readonly script_params="$*"
-    readonly script_path="${BASH_SOURCE[0]}"
-    script_dir="$(dirname "$script_path")"
-    script_name="$(basename "$script_path")"
-    readonly script_dir script_name
+  # Useful variables
+  readonly orig_cwd="$PWD"
+  readonly script_params="$*"
+  readonly script_path="${BASH_SOURCE[0]}"
+  script_dir="$(dirname "$script_path")"
+  script_name="$(basename "$script_path")"
+  readonly script_dir script_name
 
-    # Important to always set as we use it in the exit handler
-    # shellcheck disable=SC2155
-    readonly ta_none="$(tput sgr0 2> /dev/null || true)"
+  # Important to always set as we use it in the exit handler
+  # shellcheck disable=SC2155
+  readonly ta_none="$(tput sgr0 2> /dev/null || true)"
 }
 
 # DESC: Initialise colour variables
@@ -151,82 +151,82 @@ function script_init() {
 #       but ensures the terminal output isn't mangled when running with xtrace.
 # shellcheck disable=SC2034,SC2155
 function colour_init() {
-    if [[ -z ${no_colour-} ]]; then
-        # Text attributes
-        readonly ta_bold="$(tput bold 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly ta_uscore="$(tput smul 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly ta_blink="$(tput blink 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly ta_reverse="$(tput rev 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly ta_conceal="$(tput invis 2> /dev/null || true)"
-        printf '%b' "$ta_none"
+  if [[ -z ${no_colour-} ]]; then
+    # Text attributes
+    readonly ta_bold="$(tput bold 2> /dev/null || true)"
+    printf '%b' "$ta_none"
+    readonly ta_uscore="$(tput smul 2> /dev/null || true)"
+    printf '%b' "$ta_none"
+    readonly ta_blink="$(tput blink 2> /dev/null || true)"
+    printf '%b' "$ta_none"
+    readonly ta_reverse="$(tput rev 2> /dev/null || true)"
+    printf '%b' "$ta_none"
+    readonly ta_conceal="$(tput invis 2> /dev/null || true)"
+    printf '%b' "$ta_none"
 
-        # Foreground codes
-        readonly fg_black="$(tput setaf 0 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly fg_blue="$(tput setaf 4 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly fg_cyan="$(tput setaf 6 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly fg_green="$(tput setaf 2 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly fg_magenta="$(tput setaf 5 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly fg_red="$(tput setaf 1 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly fg_white="$(tput setaf 7 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly fg_yellow="$(tput setaf 3 2> /dev/null || true)"
-        printf '%b' "$ta_none"
+    # Foreground codes
+    readonly fg_black="$(tput setaf 0 2> /dev/null || true)"
+    printf '%b' "$ta_none"
+    readonly fg_blue="$(tput setaf 4 2> /dev/null || true)"
+    printf '%b' "$ta_none"
+    readonly fg_cyan="$(tput setaf 6 2> /dev/null || true)"
+    printf '%b' "$ta_none"
+    readonly fg_green="$(tput setaf 2 2> /dev/null || true)"
+    printf '%b' "$ta_none"
+    readonly fg_magenta="$(tput setaf 5 2> /dev/null || true)"
+    printf '%b' "$ta_none"
+    readonly fg_red="$(tput setaf 1 2> /dev/null || true)"
+    printf '%b' "$ta_none"
+    readonly fg_white="$(tput setaf 7 2> /dev/null || true)"
+    printf '%b' "$ta_none"
+    readonly fg_yellow="$(tput setaf 3 2> /dev/null || true)"
+    printf '%b' "$ta_none"
 
-        # Background codes
-        readonly bg_black="$(tput setab 0 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly bg_blue="$(tput setab 4 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly bg_cyan="$(tput setab 6 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly bg_green="$(tput setab 2 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly bg_magenta="$(tput setab 5 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly bg_red="$(tput setab 1 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly bg_white="$(tput setab 7 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly bg_yellow="$(tput setab 3 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-    else
-        # Text attributes
-        readonly ta_bold=''
-        readonly ta_uscore=''
-        readonly ta_blink=''
-        readonly ta_reverse=''
-        readonly ta_conceal=''
+    # Background codes
+    readonly bg_black="$(tput setab 0 2> /dev/null || true)"
+    printf '%b' "$ta_none"
+    readonly bg_blue="$(tput setab 4 2> /dev/null || true)"
+    printf '%b' "$ta_none"
+    readonly bg_cyan="$(tput setab 6 2> /dev/null || true)"
+    printf '%b' "$ta_none"
+    readonly bg_green="$(tput setab 2 2> /dev/null || true)"
+    printf '%b' "$ta_none"
+    readonly bg_magenta="$(tput setab 5 2> /dev/null || true)"
+    printf '%b' "$ta_none"
+    readonly bg_red="$(tput setab 1 2> /dev/null || true)"
+    printf '%b' "$ta_none"
+    readonly bg_white="$(tput setab 7 2> /dev/null || true)"
+    printf '%b' "$ta_none"
+    readonly bg_yellow="$(tput setab 3 2> /dev/null || true)"
+    printf '%b' "$ta_none"
+  else
+    # Text attributes
+    readonly ta_bold=''
+    readonly ta_uscore=''
+    readonly ta_blink=''
+    readonly ta_reverse=''
+    readonly ta_conceal=''
 
-        # Foreground codes
-        readonly fg_black=''
-        readonly fg_blue=''
-        readonly fg_cyan=''
-        readonly fg_green=''
-        readonly fg_magenta=''
-        readonly fg_red=''
-        readonly fg_white=''
-        readonly fg_yellow=''
+    # Foreground codes
+    readonly fg_black=''
+    readonly fg_blue=''
+    readonly fg_cyan=''
+    readonly fg_green=''
+    readonly fg_magenta=''
+    readonly fg_red=''
+    readonly fg_white=''
+    readonly fg_yellow=''
 
-        # Background codes
-        readonly bg_black=''
-        readonly bg_blue=''
-        readonly bg_cyan=''
-        readonly bg_green=''
-        readonly bg_magenta=''
-        readonly bg_red=''
-        readonly bg_white=''
-        readonly bg_yellow=''
-    fi
+    # Background codes
+    readonly bg_black=''
+    readonly bg_blue=''
+    readonly bg_cyan=''
+    readonly bg_green=''
+    readonly bg_magenta=''
+    readonly bg_red=''
+    readonly bg_white=''
+    readonly bg_yellow=''
+  fi
 }
 
 # DESC: Initialise Cron mode
@@ -234,12 +234,12 @@ function colour_init() {
 # OUTS: $script_output: Path to the file stdout & stderr was redirected to
 # RETS: None
 function cron_init() {
-    if [[ -n ${cron-} ]]; then
-        # Redirect all output to a temporary file
-        script_output="$(mktemp --tmpdir "$script_name".XXXXX)"
-        readonly script_output
-        exec 3>&1 4>&2 1> "$script_output" 2>&1
-    fi
+  if [[ -n ${cron-} ]]; then
+    # Redirect all output to a temporary file
+    script_output="$(mktemp --tmpdir "$script_name".XXXXX)"
+    readonly script_output
+    exec 3>&1 4>&2 1> "$script_output" 2>&1
+  fi
 }
 
 # DESC: Acquire script lock
@@ -251,21 +251,21 @@ function cron_init() {
 #       symlinks or multiple hardlinks as there's no portable way of doing so.
 #       If the lock was acquired it's automatically released on script exit.
 function lock_init() {
-    local lock_dir
-    if [[ $1 = 'system' ]]; then
-        lock_dir="/tmp/$script_name.lock"
-    elif [[ $1 = 'user' ]]; then
-        lock_dir="/tmp/$script_name.$UID.lock"
-    else
-        script_exit 'Missing or invalid argument to lock_init()!' 2
-    fi
+  local lock_dir
+  if [[ $1 = 'system' ]]; then
+    lock_dir="/tmp/$script_name.lock"
+  elif [[ $1 = 'user' ]]; then
+    lock_dir="/tmp/$script_name.$UID.lock"
+  else
+    script_exit 'Missing or invalid argument to lock_init()!' 2
+  fi
 
-    if mkdir "$lock_dir" 2> /dev/null; then
-        readonly script_lock="$lock_dir"
-        verbose_print "Acquired script lock: $script_lock"
-    else
-        script_exit "Unable to acquire script lock: $lock_dir" 1
-    fi
+  if mkdir "$lock_dir" 2> /dev/null; then
+    readonly script_lock="$lock_dir"
+    verbose_print "Acquired script lock: $script_lock"
+  else
+    script_exit "Unable to acquire script lock: $lock_dir" 1
+  fi
 }
 
 # DESC: Pretty print the provided string
@@ -276,24 +276,24 @@ function lock_init() {
 # OUTS: None
 # RETS: None
 function pretty_print() {
-    if [[ $# -lt 1 ]]; then
-        script_exit 'Missing required argument to pretty_print()!' 2
-    fi
+  if [[ $# -lt 1 ]]; then
+    script_exit 'Missing required argument to pretty_print()!' 2
+  fi
 
-    if [[ -z ${no_colour-} ]]; then
-        if [[ -n ${2-} ]]; then
-            printf '%b' "$2"
-        else
-            printf '%b' "$fg_green"
-        fi
-    fi
-
-    # Print message & reset text attributes
-    if [[ -n ${3-} ]]; then
-        printf '%s%b' "$1" "$ta_none"
+  if [[ -z ${no_colour-} ]]; then
+    if [[ -n ${2-} ]]; then
+      printf '%b' "$2"
     else
-        printf '%s%b\n' "$1" "$ta_none"
+      printf '%b' "$fg_green"
     fi
+  fi
+
+  # Print message & reset text attributes
+  if [[ -n ${3-} ]]; then
+    printf '%s%b' "$1" "$ta_none"
+  else
+    printf '%s%b\n' "$1" "$ta_none"
+  fi
 }
 
 # DESC: Only pretty_print() the provided string if verbose mode is enabled
@@ -312,16 +312,16 @@ function pretty_print() {
 # OUTS: None
 # RETS: None
 function journal_init() {
-    if [[ -n ${VERBOSE-} ]]; then
-    #pretty_print "$@"
-    #echo verbose enabled
-    verbose_print() { pretty_print "$@"; }
-    else
-    #echo verbose disabled
-    verbose_print() { :; }
-    fi
-    declare -f verbose_print > /dev/null
-    verbose_print "you have verbose mode enabled" "${fg_cyan-}"
+  if [[ -n ${VERBOSE-} ]]; then
+  #pretty_print "$@"
+  #echo verbose enabled
+  verbose_print() { pretty_print "$@"; }
+  else
+  #echo verbose disabled
+  verbose_print() { :; }
+  fi
+  declare -f verbose_print > /dev/null
+  verbose_print "you have verbose mode enabled" "${fg_cyan-}"
 }
 
 # DESC: Combines two path variables and removes any duplicates
@@ -331,31 +331,31 @@ function journal_init() {
 # RETS: None
 # NOTE: Heavily inspired by: https://unix.stackexchange.com/a/40973
 function build_path() {
-    if [[ $# -lt 1 ]]; then
-        script_exit 'Missing required argument to build_path()!' 2
-    fi
+  if [[ $# -lt 1 ]]; then
+    script_exit 'Missing required argument to build_path()!' 2
+  fi
 
-    local new_path path_entry temp_path
+  local new_path path_entry temp_path
 
-    temp_path="$1:"
-    if [[ -n ${2-} ]]; then
-        temp_path="$temp_path$2:"
-    fi
+  temp_path="$1:"
+  if [[ -n ${2-} ]]; then
+    temp_path="$temp_path$2:"
+  fi
 
-    new_path=
-    while [[ -n $temp_path ]]; do
-        path_entry="${temp_path%%:*}"
-        case "$new_path:" in
-            *:"$path_entry":*) ;;
-            *)
-                new_path="$new_path:$path_entry"
-                ;;
-        esac
-        temp_path="${temp_path#*:}"
-    done
+  new_path=
+  while [[ -n $temp_path ]]; do
+    path_entry="${temp_path%%:*}"
+    case "$new_path:" in
+      *:"$path_entry":*) ;;
+      *)
+        new_path="$new_path:$path_entry"
+        ;;
+    esac
+    temp_path="${temp_path#*:}"
+  done
 
-    # shellcheck disable=SC2034
-    build_path="${new_path#:}"
+  # shellcheck disable=SC2034
+  build_path="${new_path#:}"
 }
 
 # DESC: Check a binary exists in the search path
@@ -365,21 +365,21 @@ function build_path() {
 # RETS: 0 (true) if dependency was found, otherwise 1 (false) if failure is not
 #       being treated as a fatal error.
 function check_binary() {
-    if [[ $# -lt 1 ]]; then
-        script_exit 'Missing required argument to check_binary()!' 2
-    fi
+  if [[ $# -lt 1 ]]; then
+    script_exit 'Missing required argument to check_binary()!' 2
+  fi
 
-    if ! command -v "$1" > /dev/null 2>&1; then
-        if [[ -n ${2-} ]]; then
-            script_exit "Missing dependency: Couldn't locate $1." 1
-        else
-            verbose_print "Missing dependency: $1" "${fg_red-}"
-            return 1
-        fi
+  if ! command -v "$1" > /dev/null 2>&1; then
+    if [[ -n ${2-} ]]; then
+      script_exit "Missing dependency: Couldn't locate $1." 1
+    else
+      verbose_print "Missing dependency: $1" "${fg_red-}"
+      return 1
     fi
+  fi
 
-    verbose_print "Found dependency: $1"
-    return 0
+  verbose_print "Found dependency: $1"
+  return 0
 }
 
 # DESC: Validate we have superuser access as root (via sudo if requested)
@@ -387,33 +387,33 @@ function check_binary() {
 # OUTS: None
 # RETS: 0 (true) if superuser credentials were acquired, otherwise 1 (false)
 function check_superuser() {
-    local superuser
-    if [[ $EUID -eq 0 ]]; then
-        superuser=true
-    elif [[ -z ${1-} ]]; then
-        # shellcheck disable=SC2310
-        if check_binary sudo; then
-            verbose_print 'Sudo: Updating cached credentials ...'
-            if ! sudo -v; then
-                verbose_print "Sudo: Couldn't acquire credentials ..." \
-                    "${fg_red-}"
-            else
-                local test_euid
-                test_euid="$(sudo -H -- "$BASH" -c 'printf "%s" "$EUID"')"
-                if [[ $test_euid -eq 0 ]]; then
-                    superuser=true
-                fi
-            fi
+  local superuser
+  if [[ $EUID -eq 0 ]]; then
+    superuser=true
+  elif [[ -z ${1-} ]]; then
+    # shellcheck disable=SC2310
+    if check_binary sudo; then
+      verbose_print 'Sudo: Updating cached credentials ...'
+      if ! sudo -v; then
+        verbose_print "Sudo: Couldn't acquire credentials ..." \
+          "${fg_red-}"
+      else
+        local test_euid
+        test_euid="$(sudo -H -- "$BASH" -c 'printf "%s" "$EUID"')"
+        if [[ $test_euid -eq 0 ]]; then
+          superuser=true
         fi
+      fi
     fi
+  fi
 
-    if [[ -z ${superuser-} ]]; then
-        verbose_print 'Unable to acquire superuser credentials.' "${fg_red-}"
-        return 1
-    fi
+  if [[ -z ${superuser-} ]]; then
+    verbose_print 'Unable to acquire superuser credentials.' "${fg_red-}"
+    return 1
+  fi
 
-    verbose_print 'Successfully acquired superuser credentials.'
-    return 0
+  verbose_print 'Successfully acquired superuser credentials.'
+  return 0
 }
 
 # DESC: Run the requested command as root (via sudo if requested)
@@ -422,22 +422,22 @@ function check_superuser() {
 # OUTS: None
 # RETS: None
 function run_as_root() {
-    if [[ $# -eq 0 ]]; then
-        script_exit 'Missing required argument to run_as_root()!' 2
-    fi
+  if [[ $# -eq 0 ]]; then
+    script_exit 'Missing required argument to run_as_root()!' 2
+  fi
 
-    if [[ ${1-} =~ ^0$ ]]; then
-        local skip_sudo=true
-        shift
-    fi
+  if [[ ${1-} =~ ^0$ ]]; then
+    local skip_sudo=true
+    shift
+  fi
 
-    if [[ $EUID -eq 0 ]]; then
-        "$@"
-    elif [[ -z ${skip_sudo-} ]]; then
-        sudo -H -- "$@"
-    else
-        script_exit "Unable to run requested command as root: $*" 1
-    fi
+  if [[ $EUID -eq 0 ]]; then
+    "$@"
+  elif [[ -z ${skip_sudo-} ]]; then
+    sudo -H -- "$@"
+  else
+    script_exit "Unable to run requested command as root: $*" 1
+  fi
 }
 
 # DESC: Parameter parser
@@ -445,29 +445,29 @@ function run_as_root() {
 # OUTS: Variables indicating command-line parameters and options
 # RETS: None
 function parse_params() {
-    local param
-    while [[ $# -gt 0 ]]; do
-        param="$1"
-        shift
-        case $param in
-            -h | --help)
-                script_usage
-                exit 0
-                ;;
-            -v | --verbose)
-                verbose=true
-                ;;
-            -nc | --no-colour)
-                no_colour=true
-                ;;
-            -cr | --cron)
-                cron=true
-                ;;
-            *)
-                #script_exit "Invalid parameter was provided: $param" 1
-                ;;
-        esac
-    done
+  local param
+  while [[ $# -gt 0 ]]; do
+    param="$1"
+    shift
+    case $param in
+      -h | --help)
+        script_usage
+        exit 0
+        ;;
+      -v | --verbose)
+        verbose=true
+        ;;
+      -nc | --no-colour)
+        no_colour=true
+        ;;
+      -cr | --cron)
+        cron=true
+        ;;
+      *)
+        #script_exit "Invalid parameter was provided: $param" 1
+        ;;
+    esac
+  done
 }
 # DESC: Main control flow
 # ARGS: $@ (optional): Arguments provided to the script
@@ -475,68 +475,68 @@ function parse_params() {
 # RETS: None
 function main() {
 
-    verbose_print "test"
+  verbose_print "test"
 }
 
 # Invoke main with args if not sourced
 # Approach via: https://stackoverflow.com/a/28776166/8787985
 if ! (return 0 2> /dev/null); then
-    main "$@"
+  main "$@"
 fi
 
 # ask user for choice
 function ask_yes_no() {
-    local prompt="$1"  # The question to ask the user
-    local response
+  local prompt="$1"  # The question to ask the user
+  local response
 
-    while true; do
-        # Display the prompt and read the user's input
-        read -r -p "$prompt [Y/N]: " response
+  while true; do
+    # Display the prompt and read the user's input
+    read -r -p "$prompt [Y/N]: " response
 
-        # Convert the response to lowercase for easy comparison
-        case "${response,,}" in
-            y|yes)
-                return 0  # Return 0 for "yes"
-                ;;
-            n|no)
-                return 1  # Return 1 for "no"
-                ;;
-            *)
-                echo "Invalid input. Please enter Y, Yes, N, or No."
-                ;;
-        esac
-    done
+    # Convert the response to lowercase for easy comparison
+    case "${response,,}" in
+      y|yes)
+        return 0  # Return 0 for "yes"
+        ;;
+      n|no)
+        return 1  # Return 1 for "no"
+        ;;
+      *)
+        echo "Invalid input. Please enter Y, Yes, N, or No."
+        ;;
+    esac
+  done
 }
 
 # config checker
 # this function copy from default config and exit if no validate config found
 function config_check(){
-    if [[ -f $scripts_DIR/config.sh ]]; then
-        verb_echo "config check passed"
-        return 0
-        else
-        verb_echo "config check failed, try duplicating from default one"
-        if [[ -f $scripts_DIR/config.example ]]; then
-        cp $scripts_DIR/config.example $scripts_DIR/config.sh
-        script_exit "seems this is your first time to use this script,\n please edit the config file located at:\n$scripts_DIR/config.sh" 0
-        else
-        script_exit "default config not exist" 1
-        fi
+  if [[ -f $scripts_DIR/config.sh ]]; then
+    verb_echo "config check passed"
+    return 0
+    else
+    verb_echo "config check failed, try duplicating from default one"
+    if [[ -f $scripts_DIR/config.example ]]; then
+    cp $scripts_DIR/config.example $scripts_DIR/config.sh
+    script_exit "seems this is your first time to use this script,\n please edit the config file located at:\n$scripts_DIR/config.sh" 0
+    else
+    script_exit "default config not exist" 1
     fi
+  fi
 }
 
 function load_folder(){
-    if [[ -d $1 ]];then
-    # excute all scripts in the ./lib dir
-        info_echo "loading subfolder $1":
-        for script in $1/*.sh; do
-            if [ -f "$script" ]; then
-                source "$script"
-                info_echo "    $script loaded"
-            fi
-        done
-    else
-        info_echo "the subfolder $1 none exists!"
-        exit 1
-    fi
+  if [[ -d $1 ]];then
+  # excute all scripts in the lib dir
+    info_echo "loading subfolder $1":
+    for script in $1/*.sh; do
+      if [ -f "$script" ]; then
+        source "$script"
+        info_echo "    $script loaded"
+      fi
+    done
+  else
+    info_echo "the subfolder $1 none exists!"
+    exit 1
+  fi
 }

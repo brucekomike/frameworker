@@ -3,8 +3,10 @@ this is my (currently) ultimate structured bash script template, which providing
 
 ## installation
 ```
-git clone --depth 1 https://github.com/brucekomike/bash-project-template frameworker
+git clone --depth 1 https://github.com/brucekomike/frameworker
 ```
+## manual
+https://brucekomike.github.io/frameworker-docs
 ## features
 - batch loading - include all functions into one environments
 - arg passing mechanism
