@@ -18,13 +18,14 @@ detect_section() {
 write_section() {
   local content="$1"
   local target_file="$2"
-  if detect_section $2; then
+  local replacement="$START_MARKER\n$content\n$END_MARKER"
+  if detect_section "$2"; then
     # Replace the content between the markers
-    sed -i "/$START_MARKER/,/$END_MARKER/c\\$START_MARKER\n$content\n$END_MARKER" "$target_file"
-    verb_echo "content updated in $target_file."
+  sed -i.bak "s|$START_MARKER.*$END_MARKER|$START_MARKER\n$content\n$END_MARKER|" "$target_file"
+  verb_echo "content updated in $target_file."
   else
     # Append the new section at the end of the file
-    echo -e "\n$START_MARKER\n$content\n$END_MARKER" >> "$target_file"
+    echo -e "\n$replacement" >> "$target_file"
     verb_echo "Section added to $target_file."
   fi
 }
@@ -42,9 +43,9 @@ read_section() {
 # usage: $0 <file>
 remove_section() {
   local target_file="$1"
-  if detect_section; then
+  if detect_section "$target_file"; then
     # Remove the section
-    sed -i "/$START_MARKER/,/$END_MARKER/d" "$target_file"
+    sed -i.bak "/$START_MARKER/,/$END_MARKER/d" "$target_file"
     verb_echo "Section removed from $target_file."
   else
     verb_echo "No section found in $target_file."

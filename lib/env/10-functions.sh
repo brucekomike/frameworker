@@ -37,7 +37,7 @@ if [[ -f $frameworker_env_file ]] && [[ -f $frameworker_exec_file ]]; then
 }
 
 function frameworker_de_env() {
-  shell_type="$1"
+  shell_type="${1:-$(basename "$SHELL")}"
   export frameworker_env_file="$HOME/.config/frameworker"
   export frameworker_exec_file="$HOME/.local/bin/frameworker"
   rm $frameworker_exec_file 
