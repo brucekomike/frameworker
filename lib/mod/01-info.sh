@@ -9,6 +9,9 @@ $MODULE_NAME application
 Action list:
     help             - show this help
     install <URL> <name> - install content from given url
+    dev <name> - move content next to frameworker
+                        and link back to the lib folder
+    dedev <name> - the reverse of action dev
     update <name> - update content by name
 Default:
     help

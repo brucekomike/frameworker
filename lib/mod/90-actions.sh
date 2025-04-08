@@ -12,6 +12,14 @@ function parse_action(){
       shift
       install $@
       ;;
+    dev)
+      shift
+      strapper_dev $@
+      ;;
+    dedev)
+      shift
+      strapper_dedev $@
+      ;;
     update)
       shift
       update $@
