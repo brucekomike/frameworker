@@ -25,7 +25,9 @@ if [ -f "$HOME/.config/frameworker" ]; then
 else
   :
 fi
-
+if ! [[ -d "$LIB_DIR" ]]; then
+  export LIB_DIR="$Working_DIR/lib"
+fi
 ORIGINAL_ARGS="$@"
 APP=''
 ACTION=''
