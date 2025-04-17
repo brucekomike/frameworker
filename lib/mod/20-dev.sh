@@ -5,7 +5,7 @@ function strapper_dev(){
     script_exit "please provide the mod name" 1
   fi
   mod_dir="$LIB_DIR/$1"
-  next_dir="$LIB_DIR/../../$1"
+  next_dir="../../$1"
   if [[ -d "$mod_dir" ]]; then
     mv "$mod_dir" "$next_dir"
     ln -s "$next_dir" "$mod_dir" 
