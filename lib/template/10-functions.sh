@@ -12,6 +12,7 @@ function cli_env(){
   export -f action_loader
 
   # Call the action_loader function again in the new shell
+  info_echo(){ echo "\$@"; }
   action_loader base
   main "${ORIGINAL_ARGS[@]}"
   action_loader "$APP"

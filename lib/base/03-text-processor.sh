@@ -19,7 +19,7 @@ write_section() {
   local content="$1"
   local target_file="$2"
   local replacement="$START_MARKER\n$content\n$END_MARKER"
-  if detect_section "$2"; then
+  if detect_section "$target_file"; then
     # Replace the content between the markers
   sed -i.bak "s|$START_MARKER.*$END_MARKER|$START_MARKER\n$content\n$END_MARKER|" "$target_file"
   verb_echo "content updated in $target_file."
@@ -34,8 +34,8 @@ write_section() {
 # usage: $0 <file>
 read_section() {
   local target_file="$1"
-  if detect_section; then
-    return $(awk "/$START_MARKER/{flag=1; next} /$END_MARKER/{flag=0} flag" "$target_file")
+  if detect_section "$target_file"; then
+    echo $(awk "/$START_MARKER/{flag=1; next} /$END_MARKER/{flag=0} flag" "$target_file")
   fi
 }
 
